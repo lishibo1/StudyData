@@ -1,0 +1,1361 @@
+
+（学习对象：https://www.flqin.com/）
+
+一.JS中几种循环的用法和比较
+	
+	a. for-in 循环 : 语句用于遍历数组或者对象的属性（对数组或者对象的属性进行循环操作）for-in循环主要用来循环对象，取到的值是下标key，获取当前属性的值需要用obj[key]来获取。
+
+	//声明一个Peson类
+function Person(){
+    this.name = "张三";
+    this.age = 14;
+    this.func1 = function(){
+        
+    }
+}
+//实例化这个类
+var zhangsan = new Person();
+//使用for-in遍历这个对象
+for(keys in zhangsan){
+    console.log(zhangsan[keys])
+}
+
+输出 ：张三    14    f()
+
+
+	b . for-of  :  for-of是ES新增的循环， for-of 可以循环字符串、数组以及类数组对象(比如选中的dom对象、函数参数的arguments对象)，但是不能循环正常对象。
+
+	      // 字符串
+        var str = "hello";
+        
+        for (let s of str) {
+          console.log(s); // h e l l o
+        }
+        
+        // DOM NodeList对象
+        let paras = document.querySelectorAll("p");
+        
+        for (let p of paras) {
+          p.classList.add("test");
+        }
+        
+        // arguments对象
+        function printArgs() {
+          for (let x of arguments) {
+            console.log(x);
+          }
+        }
+        printArgs('a', 'b');// 'a' 'b'
+
+	
+	c. forEach :  forEach是用来循环数组的，forEach的回调中有三个参数，分别为数组当前值value 、 数组下标 index 、当前数组。其中第一个参数是必须的，其余两个参数可有可无。(forEach只能循环数组，不能循环类数组对象，比如dom对象不能被循环document.querySelectorAll("p");)
+（注意：forEach循环后返回undefined）
+如：	var arr = [1,2,3,4,5];
+	var newArr = arr.forEach((value)=>{
+    		return value*2;
+	});
+	newArr
+	//结果为undefined
+	
+	let arr = [1,2,3];
+arr.forEach(function(value,index，arr){
+ console.log(value,index，arr)
+})
+// 1 0 [1,2,3]
+// 2 1 [1,2,3]
+// 3 2 [1,2,3]
+
+	d . map : map主要是用来循环数组，不能用来循环普通对象，原生的类数组对象也不能循环（document.querySelectorAll(“p”)），但是可以循环jquery对象（$(“.name”)）。
+
+	map的用法：当map循环的是数组时，跟forEach用法一样。
+	arr.map((value,index,arr)=>{
+		console.log(value, index,arr)
+	})
+	当map循环的是jquery对象时，用法如下(只有两个参数，$(item)可以获取到当前jquery对象)
+	$(“li”).map((index,item)=>{
+		console.log(index,$(item));
+	})
+
+	(注意：map循环后会返回一个数组)
+如：	var arr = [1,2,3,4,5];
+	var newArr = arr.map((value)=>{
+    		value*2;
+	});
+	newArr
+	//结果为[undefined,undefined,undefined,undefined,undefined]
+	当在回调函数中return值时，该值会被放入返回的数组中
+如：	var arr = [1,2,3,4,5];
+	var newArr = arr.map((value)=>{
+    		return value*2;
+	});
+	newArr
+	//结果为[2,4,6,8,10]
+二、HTML、CSS、JS在页面中的加载顺序。
+
+	CSS和JS都是嵌套在HTML页面中的,而HTML页面是按照顺序加载的，页面会从head开始解析，并下载相应的资源，在加载过程中，资源下载是异步的。当碰到script标签时，浏览器将控制权交给JavaScript引擎，此时页面停止渲染。解析完后浏览器将控制权又交给浏览器渲染引擎。（这个只是针对原生的页面，在框架中并不实用。）
+
+三、基本类型与引用类型。
+
+	1.JavaScript中的变量类型有哪些？
+
+	（1）值类型（基本类型）：字符串（string）、数值（number）、布尔值（boolean）、undefined、null  （这5种基本数据类型是按值访问的，因为可以操作保存在变量中的实际的值）(ECMAScript 2016新增了一种基本数据类型：symbol http://es6.ruanyifeng.com/#docs/symbol )
+
+	（2）引用类型：对象（Object）、数组（Array）、函数（Function）
+
+ 
+
+	2.值类型和引用类型的区别
+
+	（1）值类型：1、占用空间固定，保存在栈中（当一个方法执行时，每个方法都会建立自己的内存栈，在这个方法内定义的变量将会逐个放入这块栈内存里，随着方法的执行结束，这个方法的内存栈也将自然销毁了。因此，所有在方法中定义的变量都是放在栈内存中的；栈中存储的是基础变量以及一些对象的引用变量，基础变量的值是存储在栈中，而引用变量存储在栈中的是指向堆中的数组或者对象的地址，这就是为何修改引用类型总会影响到其他指向这个地址的引用变量。）
+
+          2、保存与复制的是值本身
+
+          3、使用typeof检测数据的类型
+
+          4、基本类型数据是值类型
+
+	（2）引用类型：1、占用空间不固定，保存在堆中（当我们在程序中创建一个对象时，这个对象将被保存到运行时数据区中，以便反复利用（因为对象的创建成本通常较大），这个运行时数据区就是堆内存。堆内存中的对象不会随方法的结束而销毁，即使方法结束后，这个对象还可能被另一个引用变量所引用（方法的参数传递时很常见），则这个对象依然不会被销毁，只有当一个对象没有任何引用变量引用它时，系统的垃圾回收机制才会在核实的时候回收它。）
+
+           2、保存与复制的是指向对象的一个指针
+
+           3、使用instanceof检测数据类型
+
+           4、使用new()方法构造出的对象是引用型
+
+	重点（基本类型的基础变量被储存在栈中，值也储存在栈中，当进行比较时，比较的是值。引用类型的引用变量也储存在栈中，但是值是一个地址，指向堆内存中的对象）。
+
+四、call和apply的用法。
+
+	call和apply方法都是改变this的指向问题。只是传递的参数不同，如下。
+	function add(c,d){
+        	return this.a + this.b + c + d;
+    	}
+
+    	var s = {a:1, b:2};
+    	console.log(add.call(s,3,4)); // 1+2+3+4 = 10
+    	console.log(add.apply(s,[5,6])); // 1+2+5+6 = 14 
+
+	当传递的参数是对象s时，此时运行add()函数，this就是指向s对象的。
+
+五、window中常用的处理函数split、splice、slice。
+
+	split是用来处理字符串的，split中参数是打散字符串的规则，如下意思为碰到str中有逗号时就拆开，显然返回的数组只有一项。
+	var str = “sdf”； str.split(',') (注意，打散的参数在数组中不存在)
+	splice是用来处理数组的。splice会改变原来的数组，返回的值为被删除的部分项。
+	var arr = [11,22,33,44,55];  
+	var arr1 = arr.splice(1,2,12,34,45);
+	console.log(arr,arr1);
+	//[11, 12, 34, 45, 44, 55] [22, 33]
+	var arr = [11,22,33,44,55];  
+	var arr1 = arr.splice(1,2,[12,34,45]);
+	console.log(arr,arr1);
+	//[11, [12,34,45], 44, 55] [22, 33]
+	slice既可以处理字符串，又可以处理数组。
+	var str = 'sadfasf';   str.slice(1,3);
+	返回的值为切下来的值，不会改变原始值。
+	join是用来处理数组，按照指定规则把数组变为字符串，如果传递的参数为空时，将返回不带逗号的字符串，如果不传参数时，
+	var arr = [1111,2222,3333,4444]; arr.join("");
+
+	(重点：上面的方法中，只有splice会改变调用对象，其余方法都不会改变原来的值。)
+
+六、window中对象的使用。
+	
+	window中的常用对象有location setInterval setTimeout innerHeight localStorage等
+
+	1、location是一个获取地址栏地址的对象（window.location.reload()可以重新加载页面）
+		window.location.href:获取地址栏中的完整地址。
+		window.location.protocol:获取URL的协议
+		window.location.host:获取当前URL的主机名（域名）和端口号
+		window.location.port:获取当前URL的端口号
+		window.location.hostname:获取当前URL的主机名（域名）
+		window.location.pathname:获取URL中的文件路径，就是当前页面的路径。
+		window.location.search:获取URL中的参数
+	2、cookie  session  localStorage  sessionStorage等的用法和比较。(localStorage和sessionStorage保存数据都是保存在本地浏览器中，意思是保存的数据不能跨浏览器，而且保存的数据是保存在当前浏览器域名下。但是localStorage可以跨进程，sessionStorage不能跨进程，也就是说，sessionStorage保存的数据关闭当前tab也就会被销毁。持久性cookie数据储存在本地硬盘，可以跨进程，但是不能跨浏览器。回话级cookie数据储存在浏览器中，在Chrome中可以跨进程。)
+	（https://segmentfault.com/a/1190000017063470）
+		cookie是服务器发送给客服端的特殊信息，存储在客服端，比如用户登陆时，后端会保存用户登陆信息，返回信息存储在cookie中。 cookie可以设置保留时间，如果没有设置保留时间，则关闭浏览器就会失效。每次发送请求都会带上cookie信息。cookie的存储容量小，且每次发送请求时都会携带发送cookie，因此H5新特性中的Web Storage很好的解决了这个问题。
+
+（https://blog.csdn.net/qq_31741481/article/details/88054069）
+	localSotrage是本地永久储存，关闭浏览器数据不会被清除，只有主动删除才会失效，储存的数据在浏览器中，在同一个浏览器的不同tab页中同一个域下可以共享localStorage，但是不能跨浏览器。而且储存的数据只能是字符串类型，当需要储存对象时，需要将对象转化为json字符串。（在同一个浏览器中，同一个域下localStorage信息是共享的，相当于是个全局变量。）
+	sessionStorage也是本地存储，属于会话级别的储存，关闭浏览器数据就会被清除，在同一个浏览器的不同tab页中同一个域名下不能共享sessionStorage的数据。（同一个tab页中，同一个域下sessionStorage是共享的）
+		
+	localStorage是将需要保存的信息存储在本地的硬件设备上，且属于永久存储，关闭浏览器数据不会被清除，只有主动删除才会失效。存储的大小为5MB左右。localStoragese：常用于长期登录（+判断用户是否已登录），适合长期保存在本地的数据（项目中用到过，新生开卡功能，流程比较复杂，有几个页面需要填写信息，为了方便用户，如果用户填写了几个页面信息，但没填写完，突然有事电脑关了，下次进入开卡时，会提示你是否继续申请开卡。这个功能就是用localStorage实现的。在第一次提交主页信息时，利用localStorage保存了一个后台返回的token码，跟电话号码一一对应。当下次进入开卡主页时，用localStorage.getItem("token"),如果存在token码，就会走另外一套逻辑，用token码call后台接口，返回上次提交的数据，然后渲染在页面上。)
+		sessionStorage存储的数据只在当前浏览器窗口有效，关闭浏览器窗口会被销毁，存储大小为5MB。sessionStorage：敏感账号一次性登录；
+
+localStorage的用法：
+	
+	localStorage.setItem("name","lishibo");
+	localStorage.getItem("name");
+	localStorage.removeItem("name");
+	当存储对象时
+	var obj = {"name":"lishibo"};
+	localStorage.setItem("user",JSON.stringify(obj));
+	var user = JSON.parse(localStorage.getItem("user"))
+
+(注意：localStorage和sessionStorage都只能存储字符串，当需要存储对象时需要把json对象转化为字符串，之后把json字符串转化为对象。)
+
+七、promise的用法。
+
+	 promise是解决异步回调问题的，如下。promise是个构造函数，接受一个函数作为参数，该函数有两个参数，分别为成功回调和失败回调。当执行完Promise（）中的函数时，会继续执行js中的代码，以下执行输出为。(注意promise里面的代码是同步的)
+
+	a  c  b  1
+
+	 new Promise((resolve, reject) => {
+      		console.log('a');
+      		setTimeout(() => {
+        		resolve(1);
+      		}, 10);
+    	 }).then((data) => {
+      		console.log('b');
+      		console.log(data);
+         })
+	 console.log('c');
+
+八、对OOP的理解。（面向对象的好处：代码整洁井然有序，便于后期维护）（https://igtb.bochk.com/index_sc.html）
+	面向对象编程与面向过程编程之间的差别，面向过程编程是流程化的，一步一步分析问题，一步一步实现问题，而面向对象编程是抽象化的，抽象一个类，里面有解决问题的方法和属性，需要实现什么功能直接调用就可以了。面向对象有三大特性。第一个特性封装：隐藏对象的属性和实现细节，不允许外部程序直接访问内部属性，但可以对外提供访问方式，提高代码的复用率和可维护性，并且能提高团队开发效率。像我提供的上传的方法，只提供一个接口，说明使用方法，不需要别人知道怎么实现的。第二个特性继承：继承是指可以让某个类型的对象获得另一个类型的对象的属性和方法，比较常用的方法是使用call()方法或原型链的方式实现继承。原型链方式继承比较复杂，简单点说可以把你想要继承的构造函数的原型合并到自身的原型中。我上个项目就是使用原型链继承方式，在当前页面执行一系列的框架初始化方法。(合并两个对象的方法Object.assign({},obj1,obj2)和$.extend一样)我们这个项目是在当前页面js中使用call()方法来继承框架的类里面的方法，然后用$.extend来继承框架类中原型上的方法和属性。多态就是不同对象调用同一方法可以产生不同的效果,比如子对象重写一个跟父对象相同的方法，这个很少用到，跟多态容易搞混的重载在项目中到是用的多，根据所传参数个数不同执行不同的操作。
+	
+1.谈谈你对OOP的理解？
+OOP是面向对象编程，特征分别是封装、继承、多态、抽象。
+封装：封装是指将对象信息状态通过访问权限修饰符隐藏在对象内部，不允许外部程序直接访问，如果外部程序要访问对象内部，可以调用内部提供的get或set方法。简单来说，封装就是要找出某一类事务的公性然后提取出来。
+
+
+
+（https://www.jianshu.com/p/85899e287694继承的多种方式）
+继承：子类继承了父类所有的成员方法和属性，并且可以拥有自己特性。继承解决了代码的重用问题
+function Person(){
+     this.name = 'xiaopao';
+     this.colors = ['red', 'blue', 'green'];
+}
+
+function Child(){
+
+}
+Child.prototype = new Person();
+var child1 = new Child();
+var child2 = new Child();
+child1.colors.push("yellow");
+child1.name = "change";
+console.log(child1.colors,child2.colors);
+console.log(child1.name,child2.name);
+child1.__proto__.name = "change";
+console.log(child1.name,child2.name);
+
+(此处child1.name = "change";赋值时是给当前对象中增加此属性，如果当前对象中有此属性则覆盖，如果当前对象原型中有此属性，也会在对象中增加此属性，当访问该属性时，现在对象自身中寻找，没找到在到原型中寻找。child1.colors.push("yellow");由于使用了push方法操作数组，因此会先寻找是否有colors属性，对象自身中没有此属性，但是原型中有此属性，因此会操作原型中的colors属性。)
+
+继承有多种方式：
+1、原型链继承：如上继承方式，这种继承方式在创建child实例时不能向person穿参，而且引用属性被所有实例共享
+2、借用构造函数继承：在子构造函数中使用call调用父构造函数，此继承方法只能继承父构造函数中的属性，不能继承父构造函数中prototype中属性
+3、组合继承：在子构造函数中使用call调用父构造函数，在外部执行child.prototype = new parent();这种方法调用了两次父构造函数，当执行child.prototype = new parent()时，子构造函数的原型中已经拥有父构造函数所有的属性以及方法，当在子构造函数中执行parent.call(this)时，此时又为子构造函数增加了父构造函数中所有的属性，因此此方法会导致实例化的对象在对象本身就有父构造函数中所有属性，在实例化对象的__proto__中也拥有一份父构造函数的属性。
+4、寄生组合式继承：此继承方式就是修改组合继承，在子构造函数中执行parent.call(this),继承父构造函数中所有的属性，然后执行
+function inheritPrototype(subType, superType){
+    var protoType = Object.create(superType.prototype);    //创建对象
+    protoType.constructor = subType;                    //增强对象
+    subType.prototype = protoType;                        //指定对象
+}
+inheritPrototype(subType, superType)；
+
+（注：Object.create(proto, propertiesObject)有两个参数，第一个参数是生成的对象__proto__指向的对象，上述执行的结果是，创建了一个空对象，对象的__proto__指向superType.prototype。第二个参数是给对象中增加属性。
+使用hasOwnProperty()可以判断属性是否在对象中，返回true则说明属性在对象中而不是在原型中，使用方法obj.hasOwnProperty("name")）。
+
+目的是重新创建一个对象，对象中有父构造函数中所有prototype对象的方法，此处为什么不执行subType.prototype = superType.prototype;如果执行此代码，那么子构造函数和父构造函数的原型对象将指向同一个对象当给子构造函数原型对象增加方法时，父构造函数原型中也会增加此方法。
+
+多态：同一操作作用于不同的对象，可以有不同的解释，产生不同的执行结果。
+多态：多态存在的三个条件1.继承2.重写3.父类引用指向子类对象
+多态的实现方式1.接口实现，继承父类方法重写，同一个类中进行重载
+重载：多个同名函数同时存在，具有不同的参数个数/类型，返回值类型可以相同可
+以不同，调用方法时通过传递给它们的不同参数个数和参数类型来决定具体使用哪个方法, 这就是多态性，存在于父类和子类、同类中
+重写：1.参数列表必须完全与被重写的方法相同
+2.返回的类型必须一直与被重写的方法的返回类型相同
+3.访问修饰符的限制一定要大于被重写方法的访问修饰符
+4.重写方法一定不能抛出新的检查异常或者比被重写方法申明更加宽泛的检查型异常
+5.存在于父类和子类之间，方法被定义为final不能被重写。
+抽象：如果一个类含有抽象方法，则称这个类为抽象类，抽象类必须在类前用abstract关键字修饰。因为抽象类中含有无具体实现的方法，所以不能用抽象类创建对象。
+抽象方法必须为public或者protected（因为如果为private，则不能被子类继承，子类便无法实现该方法），缺省情况下默认为public。
+
+（重载：在es5中是不存在重载的，当方法名相同时，下面定义的方法将会覆盖上面的方法。但是ts中存在方法的重载，和java中的重载有区别，java中的重载是参数类型个数不同的同名函数构成重载，但是ts中的重载只有方法定义，并没有方法体，ts中的重载如下。）
+
+function getInfo(name: string): string   
+function getInfo(age: number): number   // 两个重载的方法只有方法的定义，并没有实现的方法体。
+function getInfo(str: any):any{
+	if(typeof str === 'string'){
+		return str;  // 当str为string时则只能返回string类型的数据
+	} else {
+		return str;  // 当str不是string时则只能返回number类型的数据才不会报错。
+	}
+}
+
+九、介绍一下必包。
+	闭包就是能读取其它函数作用域中变量的函数。闭包的原理就是作用域问题，当你访问某个变量时，会先在当前作用域下查找，如果当前作用域不存在就会在外层作用域中寻找，直到找到window作用域，而外层作用域访问不到内层作用域中的变量。我们知道，一般的方法执行之后内部变量都会被释放，但是当你在这个方法中返回一个内部函数，这个内部函数就可以访问外部函数的所有变量，因此执行外部函数之后，函数内的内部变量不会被释放。
+
+闭包的应用场景1：防抖函数（如输入框的搜索查询功能）
+
+$("#input").on("input",search(1000));
+
+function search(time){
+	var timer = null;
+ retrun function (){
+		clearTimout(timer);
+		timer = setTimout(()=>{
+
+		},time);
+	}
+}
+
+闭包的应用场景2：解决一次性定时器不能传参问题。
+    setTimeout(function(param){
+        alert(param)
+    },1000)
+
+
+    //通过闭包可以实现传参效果
+    function func(param){
+        return function(){
+            alert(param)
+        }
+    }
+    var f1 = func(1);
+    setTimeout(f1,1000);
+	闭包就是能够读取其他函数内部变量的函数
+	一般来说，函数作用域中的变量在函数外部是无法访问的，闭包可以理解为读取其它函数作用域中变量的函数，闭包可以将函数内部和函数外部连接起来。闭包的优点，可以读取函数内部的变量。
+
+十、原型和原型链。(Function函数是由Function函数生成的，所以Function函数对象的__proto__指向Function.prototype。JavaScript规定，Function.prototype.__proto__指向Object的原型。JavaScript规定Object.prototype为原型链的顶端，Object.prototype.__proto__ =  null。)
+（注意，当访问某个属性时，对象内部没有就会到__proto__属性中去寻找，但是绝对不会到prototype属性中去寻找。如给fun函数增加原型属性fun.prototype.getName = function(){},此时去访问fun对象中的属性getName为undefined。）
+（原型对象：每个函数都有个prototype属性，该属性指向的对象就是原型对象。）
+（https://www.jianshu.com/p/686b61c4a43d）
+	
+	每个函数都自带一个prototype属性，prototype属性指向一个对象，就是原型对象。每个对象自带一个__proto__属性，一般情况来说，这个__proto__属性指向生成当前实例的类的原型。当我们访问对象的一个属性时，它会先在自身中寻找，如果有则直接使用，如果没有就到__proto__所指的原型中找，如果原型中有则直接使用，如果没有就到原型的原型中寻找，直到找到Object对象的原型为止，Object的原型就是原型链的顶端。如创建一个构造函数Person，let一个变量people等于new Person，那么实例people中就有一个__proto__属性指向生成这个对象的类的原型，也就是构造函数的原型（在构造函数内部可以定义一些属性，这些属性会在实例化时保存在每个实例内部，比如Person中定义age和name等，可以在new时传入参数来实现各个实例产生不同的属性值，构造函数prototype属性指向的原型对象里面可以定义一些方法，这些方法是所有实例公用的，也就是实例__proto__所指向的对象。），普通函数的原型都是系统自动生成的‘object’类型的对象，竟然是对象，它里面同样有一个属性__proto__指向Object函数的原型，而Object函数的原型中__proto__属性是null，也就是原型链的顶端。	
+
+什么叫原型链：https://blog.csdn.net/qq_42019025/article/details/80708446。
+
+
+十一、sort函数
+	sort函数是对数组进行排序，依次取数组中的两个元素进行比较，就像冒泡排序样，sort函数接受一个回调函数作为参数，如果回调函数返回的值大于0，则a排到b的后面（大于0则a，b调换位置），如果回调函数的值等于0，则不换位置，如果回调函数的值小于0，则b排到a的后面（小于0则a，b位置不变）。
+
+	arr=[10,5,8,20,1000,2];
+	arr.sort((a,b)=>{return a-b;}) 升序
+	arr.sort((a,b)=>{return b-a;}) 降序
+	（总结一句话，就是当回调函数的值大于0时，a、b交换位置）
+
+十二、冒泡排序。
+
+function setSort(arr) {
+    let i = arr.length, j = 0;
+    while (i > 1) {
+      for (j = 0; j < i - 1; j++) {
+        if (arr[j] > arr[j + 1]) {
+          const tem = arr[j];
+          arr[j] = arr[j + 1];
+          arr[j + 1] = tem;
+        }
+      }
+      i--;
+    }
+    retrun arr;
+ }
+var arr=[10,6,20,5,1000,1];
+setSort(arr);
+
+冒泡的优化，当序列正确时，排序任然会进行下一轮，因此可以设置一个flag判断，当序列正确时，不在排序，如下。
+function setSort(arr) {
+    let i = arr.length, j = 0,flag;
+    while (i > 1) {
+	flag = false;
+      for (j = 0; j < i - 1; j++) {
+        if (arr[j] > arr[j + 1]) {
+          const tem = arr[j];
+          arr[j] = arr[j + 1];
+          arr[j + 1] = tem;
+	  flag = true;
+        }
+      }
+      i--;
+      if(!flag) break;
+    }
+ }
+var arr=[10,6,20,5,1000,1];
+setSort(arr);
+
+冒泡还可以进一步优化，当后面一部分序列已经正确时，就没必要进一步比较后面那些序列了，可以记录有序数列的下标，下次比较只需要比较到此位置为止。
+
+function setSort(arr) {
+    let i = arr.length, j = 0,flag;
+    let lastIndex = i-1;
+    while (i > 1) {
+	flag = false;
+	let lastLength = lastIndex;
+      for (j = 0; j < lastLength; j++) {
+        if (arr[j] > arr[j + 1]) {
+          const tem = arr[j];
+          arr[j] = arr[j + 1];
+          arr[j + 1] = tem;
+	  flag = true;
+	  lastIndex = j;
+        }
+      }
+      i--;
+      if(!flag) break;
+    }
+    return arr;
+ }
+var arr=[10,6,20,5,1000,1];
+setSort(arr);
+
+十三、选择排序
+选择排序是取出下标为i的元素和后面的所有元素进行比较，如果第i个元素大于后面的元素就对换位置，这样经过第一轮排序，最小的元素就到最前面了
+function chooseSort(arr) {
+    for (let i = 0; i < arr.length - 1; i++) {
+      for (let j = i + 1; j < arr.length; j++) {
+        if (arr[i] > arr[j]) {
+          const tem = arr[i];
+          arr[i] = arr[j];
+          arr[j] = tem;
+        }
+      }
+    }
+   return arr;
+  }
+十四、快速排序
+  快速排序采用的是递归方式实现。
+(concat的用法：concat是用来连接多个数组或者元素，不会改变原来的数组，返回一个新数组
+	如：arr.concat(num,arr1,arr2)。num为一个数字，
+)
+（注：js中几个取值方式：
+parseInt(num)保留整数部分，去掉小数部分。
+Math.random()取随机数。
+Math.floor(num)向下取整。
+Math.ceil(num)向上取整。
+Math.round(num)四舍五入。
+）
+quickSort(arr) {
+    if (arr.length <= 1) {
+      return arr;
+    }
+    const centerIndex = Math.floor(arr.length / 2);
+    const left = [];
+    const right = [];
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i] >= arr[centerIndex] && i !== centerIndex) {
+        right.push(arr[i]);
+      } else if(i !== centerIndex){
+	left.push(arr[i]);
+      }
+    }
+    //return quickSort(left).concat(arr[centerIndex]).concat(quickSort(right));
+	return quickSort(left).concat(arr[centerIndex],quickSort(right));
+  }
+
+十五、事件的冒泡
+	事件流分为三个阶段，事件捕获、事件目标阶段、事件冒泡阶段。当在浏览器中触发某个事件时，如click事件，点击了一个div，顶级对象document就会发出一个事件流，向被点击的目标元素流去，捕捉所有绑定有点击事件的事件函数，到达点击元素后，就会向上冒泡，执行所有捕获的click事件函数。
+十六、事件代理
+	事件代理实现的原理就是事件的冒泡行为。用同一个dom元素注册多个同类型事件。如要给一个列表的li绑定点击事件，可以在父元素ul上绑定一个点击事件，当你点击li时，事件会冒泡到ul上执行click的方法
+十七、什么是模块化开发，有什么优点？
+
+	模块化开发就是将一个大型项目拆分为不同的功能模块，由不同的模块功能拼凑成大型系统。
+
+十八、后端session和cookie。（https://www.zhihu.com/question/19786827/answer/84540780）
+(Session是在服务端保存的一个数据结构，用来跟踪用户的状态，这个数据可以保存在集群、数据库、文件中；
+Cookie是客户端保存用户信息的一种机制，用来记录用户的一些信息，也是实现Session的一种方式。)
+（注意：cookie是不能跨浏览器的）
+
+	cookie是服务器返回，存储在客户端的一些信息。由于http协议是无状态的，cookie就是一种会话状态跟踪技术，比如做某个操作需要登录后才能有效操作，但由于http是无状态协议，并不知道用户是否登录，也就是说你需要告诉服务器你已经登录，你可以在访问下个接口时带上登录信息证明你已经登录，那每次都带参数就麻烦了，所以可以在你登录后将登录信息保存在cookie中，在请求返回中将cookie写入浏览器，后续所有请求都会携带cookie去服务器比较。
+
+	session：session是服务器端生成，保存在服务器端的信息，session的工作原理：当客服端第一次访问，就是第一次调用setSession时，服务器端会生成一个sessionId（32位随机数）和一个session对象，生成的session对象被保存在session  Map中，key值就是sessionid ，value值是当前session对象，在请求响应中会将sessionid写入浏览器cookie中，key值为jsessionid，value值为32位随机数，之后同一个回话中的请求都会将cookie中的sessionid发送到服务器端，服务器会拿这个sessionid去Map中找对应的session，因此不会拿错数据。（这就是session跟踪）
+
+	cookie是服务器发送给客服端的特殊信息，存储在客服端,当每个用户第一次访问登陆接口时（第一次指在新打开的浏览器中访问，如果访问后关闭当前窗口新开一个窗口继续访问，session还保存在，后端设置session保存时间一般是三十分钟，关掉浏览器当前域下的cookie才会被删除），后端会生成一个session ID来记录当前用户的状态并开辟一个内存空间来处理当前用户的数据，并在请求返回中将session id写入浏览器cookie，当浏览器访问这个域下面的任何service时，都会携带cookie信息发送给后端，后端根据这个session id来在指定内存中处理当前用户数据。
+	cookie分为会话cookie和持久cookie，会话cookie在会话结束时就会消失，会话结束指关闭浏览器，会话cookie保存在浏览器的内存中，且关闭当前tab cookie不会消失，在IE中cookie不能跨进程，chrom中可以跨进程。
+	持久cookie保存在硬盘上，关闭浏览器再次打开，只要cookie没有过期，cookie信息还保存在，持久cookie可以跨进程。
+十九、xss攻击。（https://www.cnblogs.com/tugenhua0707/p/10909284.html）
+
+	xss攻击通常指黑客通过 HTML 注入 篡改网页，插入恶意脚本，从而在用户浏览网页时，控制用户浏览器的一种攻击行为。比如有一个留言功能，所有用户在输入框输入内容点击提交留言就会显示在下方，如果你在输入框里面输入script标签并将src属性指向你自己的服务器，提交到服务器端，服务器返回用户写入的内容并append到页面上，就会执行这个script标签，由于jsonp可以实现跨域，所以可以在本网站获取数据写入自己服务器内。
+	我上个项目就有解决xss攻击问题，所有从前端发送给后端的数据，都会经过转义处理，后端接收后进行反转义处理将正常的数据存入数据库，后端返回正常的数据给前端，前端可以进行长度比较，当需要把后端返回的内容挂载到页面上时，需要进行转义处理，浏览器会进行自动的返转义处理。因为项目开发到中后期才注意到xss攻击，所以需要找到改动尽量小的设计方案，因此就想到在原先的方法上进行封装，将.val()方法在框架中改写igtbval()，判断.igtbval()是否穿参，没穿参说明是从页面获取内容，此时在内部使用this.val()获取到当前内容，然后调用escape进行转义，返回转义后到值。穿参是给dom元素赋值，就在igtbval()方法中进行反转义，返回this对象，让igtbval()也可以实现链式操作。
+
+二十、阻止冒泡和默认行为的方法
+
+	阻止默认行为： event.preventDefault();
+	阻止冒泡：event.stopPropagation();
+	
+二十一、jsonp的原理和使用。
+
+	由于浏览器同源策略的限制，非同源下的请求将会产生跨域问题，同源指协议、域名、端口都相同。但我们发现html中的img图片的src属性指向其它服务器时可以获取到图片，获取的方式是get请求，因此我们可以利用这种方式实现跨域，也就是jsonp。实现的方式是在js中动态生成一个script标签，将src属性指向需要获取数据的地址，并在地址后面传递一个回调函数给后端，后端接受到这个参数后，将需要返回的数据放入函数参数中，前端运行这个回调函数就能拿到后端的数据。
+
+代码如下
+
+<script type="text/javascript">
+    function jsonhandle(data){
+        alert("age:" + data.age + "name:" + data.name);
+    }
+	
+    function sendJson(){
+        var url = "http://www.practice-zhao.com/student.php?callback=jsonhandle";
+        var obj = $('<script><\/script>');
+        obj.attr("src",url);
+        $("body").append(obj);	
+    } 
+
+</script>
+<?php
+$data = array(
+    'age' => 20,
+    'name' => '张三',
+);
+$callback = $_GET['callback'];
+echo $callback."(".json_encode($data).")";
+>
+
+解释：前端定义了一个函数jsonhandle,在前端生成了一个script标签，地址指向student的php文件，并且传参callback=jsonhandle，当访问后端php文件时，php文件接收参数callback，并且返回callback(data),前端接收到这个参数时会执行此方法，也就是执行jsonhandle(data).
+
+二十二、promise.all用法和async await。
+
+	function setPromise(num){
+		return new Promise((resolve,reject)=>{
+			setTimeout(()=>{resolve(num)},1000);
+		});
+	}
+	Promise.all([setPromise(1111),setPromise(2222)]).then((x)=>{console.log(x)},(y)=>{})
+	Promise.all()传入一个数组，数组中传入多个返回Promise对象的函数，then()中第一个参数是成功执行的方法，x是返回的一个数组，对应传入是的函数返回值，第二个参数是失败执行的方法。（Promise.all()会等所有Promise都执行完后在调用）。
+
+	async await是配合使用的，async定义一个函数，用await接收一个Promise对象，并且await后面的代码会等Promise返回resolve之后在执行。但是async函数外的代码还是正常执行。
+
+	function setPromise(num){
+		return new Promise((resolve,reject)=>{
+			setTimeout(()=>{reject(num)},1000);
+		});
+	}
+	async function test(){
+		try{
+			console.log('aaaaa');
+			var n = await setPromise(1111);
+			console.log(n);
+		} catch(error) {
+			console.log("失败了"+error);
+		}
+	}
+	test();
+	console.log(3333);
+	输出结果为 
+	aaaaa
+	3333
+	失败了1111
+
+二十三、js中判断数据的类型。
+
+	使用Object.prototype.toString.call(data)可以判断出所有类型，得出的值是一个字符串。
+
+	console.log(Object.prototype.toString.call(123).slice(8,-1)) // "Number"
+
+	console.log(Object.prototype.toString.call(123));    //"[object Number]"
+	console.log(Object.prototype.toString.call('123'));    //"[object String]"
+	console.log(Object.prototype.toString.call(undefined));    //"[object Undefined]"
+	console.log(Object.prototype.toString.call(true));    //"[object Boolean]"
+	console.log(Object.prototype.toString.call({}));    //"[object Object]"
+	console.log(Object.prototype.toString.call([]));    //"[object Array]"
+	console.log(Object.prototype.toString.call(function(){}));    //"[object Function]"
+	console.log(Object.prototype.toString.call(null));    //"[object Null]"
+
+	使用typeof可以判断出基本类型，但是不能判断null、Array、Object。
+	typeof的用法：typeof(a) 或者 typeof a
+	如： typeof bool == "boolean"
+	console.log(typeof bool); //boolean
+	console.log(typeof num);//number
+	console.log(typeof str);//string
+	console.log(typeof und);//undefined
+	console.log(typeof nul);//object
+	console.log(typeof arr);//object
+	console.log(typeof obj);//object
+	console.log(typeof fun);//function
+	console.log(typeof s1); //symbol
+
+	使用instanceof可以判断出数组，对象跟函数，其它类型无法判断。（注意instanceof后面的Boolean不是字符串。）
+	console.log(bool instanceof Boolean);// false
+	console.log(num instanceof Number);// false
+	console.log(str instanceof String);// false
+	console.log(und instanceof Object);// false
+	console.log(nul instanceof Object);// false
+	console.log(arr instanceof Array);// true
+	console.log(obj instanceof Object);// true
+	console.log(fun instanceof Function);// true
+	console.log(s1 instanceof Symbol);// false
+
+	因此typeof和instanceof配合可以判断出所有类型。
+	注意大小写， 只有typeof是小写。
+
+二十四、HTTP的了解。
+
+	
+
+二十五、文件上传和图片上传。(在上传文件时的触发事件是change事件，而不是click事件)
+	
+	前后端上传是以文件流进行传输的，文件流包括文件的基本信息和文件内容。后端用MultipartFile类去接收和解析
+	使用form文件上传时要将enctype设置为multipart/form-data类型，这个编码会对文件内容进行处理。
+	如果使用ajax上传文件，则需要使用浏览器提供的FormData构造函数，实例化一个对象，将文件内容append到对象中，发送给后端。
+	上传文件时使用FormData：
+	var formData = new FormData();
+	formData.append("file",$("#file")[0].files[0]);
+	$.ajax({
+            	url: 'upload_base64.php',
+            	type: 'POST',
+            	data: formData,
+            	dataType: 'json',
+            	success: function (res) {
+                
+            	},
+            	error: function (res) {
+               		alert('上传出错');
+            	}
+        });
+
+	当上传图片时预览：
+	var reader=new FileReader();  //调用FileReader
+        reader.readAsDataURL($("#file")[0].files[0]); //将文件读取为 DataURL(base64)
+        reader.onload=function(evt){   //读取操作完成时触发。
+               $("#img").attr('src',evt.target.result)  //将img标签的src绑定为DataURL
+		$.ajax({
+            		url: 'upload_base64.php',
+            		type: 'POST',
+            		data: { data: evt.target.result },
+            		dataType: 'json',
+            		success: function (res) {
+                
+            		},
+            		error: function (res) {
+               			 alert('上传出错');
+            		}
+        	});
+        };
+	
+
+二十六、什么是服务器端渲染和浏览器端渲染，服务器端渲染是怎么把数据放在页面上的。
+	
+	浏览器渲染指的是当用户在浏览器中输入地址时，服务器端给浏览器端返回一个HTMl页面，浏览器渲染这个HTML页面，并下载当前页面需要的资源，在下载资源时是异步的，当碰到script标签时，浏览器停止渲染页面，会执行相应的js代码，js会请求页面所需数据，并将数据显示在页面上，浏览器接着渲染页面，直到整个过程完成。
+	服务器端渲染指的是当用户在浏览器中输入地址时，服务器端会在服务端执行相应操作，通过模版语法，在服务端将页面所需数据全部放入页面对应位置，返回一个完整的HTML页面给浏览器，浏览器渲染返回的HTML页面只需下载对应资源，而不需要在向服务器发送请求数据。
+
+二十七、arguments的理解。
+
+	arguments是构造函数Arguments的实例对象，它不能显式创建，只有在非箭头函数中才有此属性，它是一个包含函数参数的对象。
+
+	arguments是函数内的Arguments的实例对象。arguments对象是所有（非箭头）函数中都可用的局部变量。
+	1.arguments对象和Function是分不开的。
+	2.因为arguments这个对象不能显式创建。
+	3.arguments对象只有函数开始时才可用。
+	arguments有个属性callee（使用方法arguments.callee()），该属性指向自身函数，arguments是一个对象，对象内部包含函数的实参，所以函数内部this指向arguments对象，如下输出 10，2.
+	var length = 10;
+	var obj = {"length":"arguments","getLength":function(){console.log(this.length)}};
+	function fn() {
+  		console.log(this.length);
+	}
+	var obj = { 
+  		method: function(fn) {
+    			fn();
+    			arguments[0]();
+  		}
+	};
+	obj.method(fn, 1, obj);
+
+二十八、es6中var let const的区别。
+
+	es5中只有全局作用域和函数作用域，没有块级作用域，在{}中用var定义的变量能在{}外访问，es6中有块级作用域，使用let和const在块级作用域内定义的变量只能在块级内访问，外部访问不到。const定义的变量必须赋初始值，且值不能被改变，如果const定义的变量是个引用类型的值，属性可以改变。
+	var、let、const都会申明提前，但是let和var有区别，当var在后面定义变量，前面使用变量时会报undefind,当let在后面定义变量，前面使用变量时会报错，都不是报错未定义。
+	1、在es5中只有全局作用域和块级作用域，es6中有块级作用域，使用let和const申明变量能形成块级作用域。
+	2、在全局作用域下使用var定义的变量会挂载到window上，而let和const申明的变量不会，如var a = 1; console.log(window.a)。
+	3、var有申明提前的作用，let和const必须先申明然后使用变量，否则会报错。var先使用变量后申明会返回undefined。
+	4、同一作用域下let和const不能声明同名变量，而var可以。
+	5、const定义的变量必须赋初始值，且值不能被改变，如果const定义的变量是个引用类型的值，属性可以改变。
+二十九、箭头函数和普通函数。
+
+	箭头函数this指向函数外的this(注意：this在箭头函数中已经按照词法作用域绑定了，使用call时不能改变this指向，)，箭头函数不能使用new，箭头函数没有prototype属性，箭头函数没有arguments对象，使用...调用arguments。
+
+箭头函数this不能改变：
+例子：var obj = {
+    birth: 1990,
+    getAge: function (year) {
+        var b = this.birth; // 1990
+        var fn = (y) => y - this.birth; // this.birth仍是1990
+        return fn.call({birth:2000}, year);
+    }
+};
+var age = obj.getAge(2018); // 28
+
+箭头函数调用arguments的方法：(当箭头函数要使用参数时，可以在定义函数时加...就可以调用了。)
+例子： var fun = (...arge)=>{console.log(arge[0])};
+	fun(11,22,33); //11
+
+
+三十、es6中的Proxy。
+
+	es6中新增的用来干预默认行为的，如定义一个obj，当给obj赋值时会调用set方法，当获取obj某属性值时，会调用get方法。
+var person = { age: 1 };
+
+var Pperson = new Proxy( person, {
+　　set: function( target, prop, value ){
+　　　　if (prop === 'age') {
+　　　　　　if( typeof value !== 'number' ) throw new Error('age value type error');
+　　　　　　target[prop] = value < 0 ? 0 : ( value > 100 ? 100 : value );
+　　　　} else {
+　　　　　　return Reflect.set(...arguments);
+　　　　}
+　　}
+  get: function(target, prop, value){
+	// target为被传入的对象，prop为获取当前的属性，value为当前值。
+  }
+});
+
+let p = new Proxy(target, handler);  中有两个参数，第一个是传入的目标对象，第二个是一个对象，里面可以有set、get之类的方法。注意，当执行new Proxy()后，改变原先的对象，代理后的对象也会改变，但是代理后的对象和原对象不相等。即person == Pperson  //false
+
+三十一、es6新增哪些内容
+
+	es6中有块级作用域，let和const定义变量，箭头函数、模版字符串、解构、对象字面量赋值简写、promise、代理proxies等。
+	// new Object() 方式创建(es5创建对象)
+	var a = {  rep : 'apple' }
+	var b = new Object(a)
+	console.log(b) // {rep: "apple"}
+	console.log(b.__proto__) // Object.prototype
+	console.log(b.rep) // {rep: "apple"}
+	console.log(a === b) // true
+	使用这种方式创建对象跟 var b = a 一样，变量a、b都指向同一个对象。
+
+	// Object.create() 方式创建(es6创建对象)
+	var a = { rep: 'apple' }
+	var b = Object.create(a)
+	console.log(b)  // {}
+	console.log(b.__proto__) // {rep: "apple"}
+	console.log(b.rep) // {rep: "apple"}
+
+	2、es6中的三点运算符的作用：
+		a、作为参数使用，可以将后面的参数放入数组中，之后可以循环数组来获取每一项。作为参数使用时，只能放在参数的最末尾。
+		     例子：let fun2=function(arr,...args){
+				    console.log(arr);
+				    console.log(args);
+				};
+				fun2(1,2,3);//1, [2,3]
+				fun2(1);//1, []当...args有其他参数时，rest参数args数组集合除去前面参数之后的参数。
+
+		b、作为拓展运算符使用，可以将数组和对象打散，因此可以用来数组和对象的合并。
+			例子：var arr = [321,53,76,];
+				 var arr1 = [3213,43,...arr,8787];
+
+
+	3、es6新增export、import模块化
+	模块是独立的文件，该文件内部的所有的变量外部都无法获取。如果希望获取某个变量，必须通过export输出。
+	export的输出有三种类型（注意：当使用export输出时，不能直接输出变量，要么输出变量申请语句，要么输出大括号。）
+	a、export直接输出变量声明语句
+		如：export var a = 1;
+		   export function getName(){};
+	
+	b、export输出大括号
+		var b = 2;
+		function getAge(){}
+		export {b,getAge}
+	
+	c、export输出default。因为export default命令其中只是输出一个叫做default的变量，所以它后面不能跟变量声明语句。（注意：一个模块中只能有一个export default,且输出的是变量，不是变量的申请。）
+		如：
+		 var a = 1;
+  		 export default a ;
+
+	当使用import引入模块时。
+		如上a、b输出方式引入时需要加大括号
+		a、import {a,getName} from '....';
+		b、import {b,getAge} from '....';
+	
+		如上c方式导出时，在引入时不需要大括号，导入时名字可以随意取；
+		c、import aaa from '...';
+	
+	4、es6中对象中定义方法。
+	es6中对象定义方法有两种写法：
+	第一种：var obj = {
+			getName: function(){console.log(1111)}
+	      }
+	第二种：var obj = {//这种方法和TS中的class中方法定义一样
+			getName(){console.log(22222)}
+		}
+
+
+三十二、原生js怎么绑定点击事件和解除绑定。
+
+	原生js绑定事件有两种方法，onclick和addEventListener，两者比较的差别：
+	onclick给同一个元素绑定事件只能绑定一个函数，如：dd.onclick = fun1; dd.onclick = fun2;则只有fun2生效。onclik只支持事件冒泡阶段，不支持事件捕获阶段。
+	addEventListener可以给同一个元素绑定多个事件，会依次执行，支持事件捕获阶段。addEventListener第三个参数默认是false，就是默认使用事件冒泡阶段触发绑定事件，当传入true时，使用的是事件捕获阶段触发事件。
+	绑定事件后，事件函数中的this都是指向绑定的元素。
+	解除绑定：
+	dd.onclick = null;
+	addEventListener解除绑定时需要绑定函数为具名函数，如下：
+	var fun = function(event){
+		console.log(event.target)
+		dd.removeEventListener("click",fun);
+	};
+	dd.addEventListener("click",fun)
+
+	jquery中绑定点击事件可以用$("#id").click(fun)和$("#id").on("click",fun),两者的区别在于当元素是动态添加的，使用click绑定将不会生效，因为此时元素不存在，但是on可以使用事件代理实现。这两种方法都能绑定多个函数，解除绑定的方法$("#id").off("click")，或者只解除其中一个函数，如$("#id").off("click", fun1)。
+	
+三十三、懒加载。
+
+	懒加载用在当页面元素丰富，图片比较多，页面比较高时，为了防止资源加载造成页面卡顿，可以先把图片地址放在自定义属性中储存，当页面滚动到显示当前图片的位置时，将图片地址改为正确地址。
+
+	节流函数：当事件频繁触发时，为了减轻服务器压力，可以设置固定时间在发送请求。（本质就是减少请求的发送）
+	function throttle(lazyTime, Fuc){
+                var lastTime = null //记录上次时间
+                return function(){
+                    var currentTime = new Date().getTime();
+                    if(!lastTime){ //初始化时间
+                        lastTime = currentTime;
+                    }
+                    if(lastTime + lazyTime < currentTime){
+                        Fuc();
+                        lastTime = currentTime;
+                    }
+                }
+            }
+            window.onscroll = throttle(50, lazyload) //事件回调是个闭包
+
+	节流函数升级版，理解节流就是减少请求发送后，可以定义一个flag，请求发送之后改变flag的值
+	
+	function throttle(time){
+		var flag = false;
+		return function(){
+			if(flag){
+				return;
+			}
+			flag = true;
+			setTimout(()=>{
+				Fun();
+				flag = false;
+			},time);
+		}
+	}
+	window.onscroll = throttle(50);
+
+	防抖函数：当持续触发某个事件时，为了减轻服务器压力，当一定时间内不在触发事件时会调用函数。
+	// 防抖函数，就是指触发事件后在 n 秒内函数只能执行一次，如果在 n 秒内又触发了事件，则会重新计算函数执行时间。
+
+	   function debounce(Fuc, time){ //防抖
+                let timer = null
+                return function () {
+                    clearTimeout(timer); 
+		    //清除定时器，如果触发时间超过设定时间，则定时器中的代码不能执行
+                    timer = setTimeout(() => {
+                        Fuc()
+                    }, time); //重新赋值定时器
+                }
+            }
+            function test(){
+                document.querySelector('#text').innerHTML = new Date().getTime();
+            }
+            document.querySelector('#input').addEventListener('input', debounce(test, 1000))
+
+注意，记住这两个方法的技巧，事件都是调用的一个闭包，节流函数中闭包保存的变量是当前时间，防抖函数中闭包保存的变量是一次性定时器。
+
+三十四、开发模式之原生应用、Web应用、混合应用。
+
+	开发原生应用就是适应对应的设备，特别为某种操作系统开发的，如Word只在window上运行，Android系统的专用软件等。
+	Web应用：Web应用本质上是为移动浏览器设计的基于Web的应用，它们是用普通Web开发语言开发的，可以在各种智能手机浏览器上运行。简单来说就是使用浏览器访问的网页。
+	混合应用大家都知道是原生应用和Web应用的结合体，采用了原生应用的一部分、Web应用的一部分，所以必须在部分在设备上运行、部分在Web上运行。也就是有原生应用的外壳，访问Web服务器。
+
+三十五、当调用函数时，函数中变量作用域是在当前定义函数的作用域，而不是在调用位置的作用域。
+
+三十六、有哪些前端优化经验。
+
+三十七、原生js获取元素和jQuery获取元素的方法。
+Js:
+
+Id：document.getElementById("id")
+Name: document.getElementByName("name") //返回值是一个类数组。
+Class: document.getElementByClassName("class") //返回值是一个类数组。
+通过选择器获取一个元素： document.querySelector("#id .class") //返回值只获取到第一个元素。
+通过选择器获取一组元素： document.querySelectorall("#id .class") //返回所有符合此选择器的元素。
+
+jQuery：
+
+Id: $("#id")
+Name: $("div input[name='Name']")   //此处[]中的为条件，假如选中div中的class='Class'的input框$("div input[class='Class']")。
+P标签中的第一个span:  $("p span:first-child")。
+
+
+三十八、原生js设置css样式和jQuery设置css样式的方法。（注意：jQuery对选中的元素做操作时调用的是函数，所以传参时跟使用函数一样的形式。）
+Js:
+
+element.style.fontSize = "17px"; //此处style是个对象，就是给对象中的属性赋值。
+element.style.cssText = "color: red; line-height: 20px;" //此处style中有个cssText属性，此属性可以为选中的元素增加样式。
+删除某个css属性：element.removeProperty("color") //该方法是删除当前元素的color属性，返回值为被删除的属性值。
+
+jQuery：
+
+$("#id").css("color")  //返回被选中的元素的color值
+$("#id").css("color","red")。
+$("#id").css({"color":"red","font-size":"25px"})
+
+三十九、jQuery的基本操作
+
+给某个属性赋值：$("img").attr({"src":"test.jpg","alt":"test Image"}).
+添加class和删除class： $("p").addClass("selected");   $("p").removeClass("selected");
+
+四十、es6中的class语法（ES6 的class可以看作只是一个语法糖，它的绝大部分功能，ES5 都可以做到，新的class写法只是让对象原型的写法更加清晰、更像面向对象编程的语法而已。）
+
+如 es5：
+function Point(x, y) {
+  this.x = x;
+  this.y = y;
+}
+
+Point.prototype.toString = function () {
+  return '(' + this.x + ', ' + this.y + ')';
+};
+
+var p = new Point(1, 2);
+
+es6：class语法（跟java语法类似，只是不需要访问修饰符，注意：es5中所有在构造函数中定义的属性都要放在class语法的constructor构造函数中，且类中的方法不需要function申明，实例化后的对象都是公用一个原型，如果class语法中没有constructor则会隐式生成。）
+class Point {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  toString() {
+    return '(' + this.x + ', ' + this.y + ')';
+  }
+}
+
+Class语法也可以实现继承，和java语法一样，使用extends来继承,在子类构造器中使用super()方法调用父类构造器，且super()方法必须放在子类构造器的第一行。
+class Parent{
+	constructor(a,b){
+		this.a = a;
+		this.b = b;
+	}
+}
+
+
+class Child extends Parent {
+  constructor(x, y, color) {
+    super(x, y); // 调用父类的constructor(x, y)
+    this.color = color;
+  }
+
+  toString() {
+    return this.color + ' ' + super.toString(); // 调用父类的toString()
+  }
+}
+
+
+四十一、then()的使用
+
+function a() {
+    return new Promise((e, t) => {
+      setTimeout(() => {
+        e(111);
+      }, 1000);
+    })
+      .then(res => {
+          debugger
+        console.log('略略', res);
+        setTimeout(() => {
+            debugger
+          return new Promise((ee, tt) => {
+            ee('hh');
+          }).then(res2 => {
+            console.log('哈哈', res2);
+            setTimeout(() => {
+              return 'iii';
+            }, 2000);
+          });
+        }, 5000);
+        setTimeout(() => {
+            debugger
+          return Promise.resolve(999999);
+        }, 0);
+      })
+      .then(res3 => {
+        setTimeout(() => {
+          console.log('呵呵', res3);
+          return Promise.resolve(565);
+        }, 0);
+        //                 return Promise.resolve(565);
+      })
+      .catch(() => {
+        console.log(9998);
+      });
+  }
+  a()
+    .then(function(res) {
+        debugger
+      console.log('嗯嗯', res);
+      return 222;
+    })
+    .then(function(res) {
+      console.log('啊啊', res);
+    })
+    .catch(function(res) {
+      console.log(666, res);
+    });
+
+//略略 111
+嗯嗯 undefined
+啊啊 222
+呵呵 undefined
+哈哈 hh
+
+解释：方法的执行顺序是先执行a函数中的两个then()方法，后执行a()函数后面的then()方法。当then()方法中没有返回值时，继续执行then()后面的then()方法，当有返回值时，返回值会传给下一个then()，当返回setTimout()时其实是返回的setTimout的地址，且不会等待setTimout的执行，当返回的是Promise时，会等待Promise的执行。
+
+四十二、处理数组的函数。
+1、concat()
+concat()方法用于连接两个或多个数组,concat不会改变原数组，返回新数组。
+例1、 var a = [1,2,3];
+document.write(a.concat(4,5));  // 1,2,3,4,5
+例2、var arr = new Array(3)
+arr[0] = "George"
+arr[1] = "John"
+arr[2] = "Thomas"
+
+var arr2 = new Array(3)
+arr2[0] = "James"
+arr2[1] = "Adrew"
+arr2[2] = "Martin"
+
+var arr3 = new Array(2)
+arr3[0] = "William"
+arr3[1] = "Franklin"
+
+document.write(arr.concat(arr2,arr3))  // George,John,Thomas,James,Adrew,Martin,William,Franklin
+
+在es6中可以使用...语法来合并数组
+例3、var arr = new Array(3)
+arr[0] = "George"
+arr[1] = "John"
+arr[2] = "Thomas"
+
+var arr2 = new Array(3)
+arr2[0] = "James"
+arr2[1] = "Adrew"
+arr2[2] = "Martin"
+
+var arr3 = new Array(2)
+arr3[0] = "William"
+arr3[1] = "Franklin"
+[...arr, ...arr2, ...arr3];
+
+2、copyWithin()方法浅复制数组的一部分到同一数组中的另一个位置（在复制时，并不是在target位置插入start-end段，而是从target位置开始，用start-end段来覆盖数组中的元素。），并返回它（会改变原数组的值，但是不会改变原数组的长度）。
+copyWithin(target,start,end)有三个参数,参数值都是下标，也是含头不含尾。
+target：目的起始位置,即需要被覆盖的起始位置。
+start：复制源的起始位置。
+end：复制源的结束位置，如果省略则位置是arr.length-1。
+
+3、every()方法，用于检测数组所有元素是否都符合指定条件，如果都符合则返回true，如果有一项不符合则返回false，且剩余项不在做比较。
+Every中有一个参数为回调函数，回调函数中可以有三个参数，value、index、arr，value为必须参数。(此方法不改变原数组)
+例子：检查数组中是否每一项都大于18
+var ages = [32, 33, 16, 40];
+ages.every((value,index,arr)=>{
+	return value > 18; // 此处必须有return语句
+});   // false
+
+4、fill()方法，使用固定值填充数组，fill(value,start,end)有三个参数，value为必填参数，是需要填充的值，start为选填参数，表示需要填充的起始位置，end为选填参数，表示填充的末位置（含头不含尾），当没有end参数时，end默认为arr.length。(此方法会改变原数组)
+实例：填充 "Runoob" 到数组的最后两个元素：
+
+var fruits = ["Banana", "Orange", "Apple", "Mango"];
+fruits.fill("Runoob", 2, 4); // Banana,Orange,Runoob,Runoob
+
+5、filter()方法，创建一个新的数组，新数组中的元素是通过检查指定数组中符合条件的所有元素。filter有一个参数为回调函数，回调函数有三个参数，value、index、arr，其中value为必须参数。（该方法不会改变原数组，返回一个新数组）
+实例：返回数组 ages 中所有元素都大于 18 的元素:
+var ages = [32, 33, 16, 40];
+ages.filter((value,index,arr)=>{
+	return value>18;
+}) //32,33,40
+
+6、find() 方法返回通过测试（函数内判断）的数组的第一个元素的值，当找到符合条件的值时，不在继续循环后面的项。
+例子：var arr = [123,321,312,43,54];
+var value = arr.find((value,index,arr)=>{
+	return value > 314;
+}) //321
+
+7、findIndex() 方法返回传入一个测试条件（函数）符合条件的数组第一个元素位置,当找到符合条件的值时，不在继续循环后面的项。
+例子：var arr = [123,321,312,43,54];
+var value = arr.find((value,index,arr)=>{
+	return value > 314;
+}) //1
+
+8、flat()，Array.prototype.flat()
+在Array的显示原型下有一个flat方法，可以将多维数组，降维，传的参数是多少就降多少维，此方法生成一个新数组，不会改变原来数组。
+例子：
+var array1 = [1, 2, [3, 4], [[5, 6]], [[[7, 8]]], [[[[9, 10]]]]];
+var array2 = array1.flat(2);
+// array2: [1, 2, 3, 4, 5, 6, [7, 8], [[9, 10]]]
+当传的参数为Infinity。
+
+手动实现flat函数。
+var arr=[32,312,[312,312],[[312,4234]],[[[3,3,3]]],[[[[4,4,4]]]],[[[[[5,5,5]]]]]];
+Array.prototype.myFlat = function(num){
+  var type = checkType(this);
+  if(type != "Array"){
+    return;
+  }
+  if(num == 0){
+    return this;
+  }
+  var result = [];
+  this.forEach(item => {
+    var innerType = checkType(item);
+    if(innerType != "Array"){
+      result.push(item);
+    } else {
+      var num1 = num - 1;
+      // result.push(...item.myFlat(num1));   es6
+      result = result.concat(item.myFlat(num1));  // es5
+    }
+  });
+  return result; 
+}
+
+function checkType(obj){
+  return Object.prototype.toString.call(obj).slice(8,-1);
+};
+arr.myFlat(3);  //[32, 312, 312, 312, 312, 4234, 3, 3, 3, [4,4,4], [[5,5,5]]]
+
+9、flatMap()方法和就相当于flat(1)和map()的结合体，flatMap()方法有一个参数为回调函数，在返回的数组中将会被降低一维,flatMap方法不会改变原数组。
+例子：const scattered = [ "my favorite", "hamburger", "is a", "chicken sandwich" ];
+const huh = scattered.map( chunk => chunk.split( " " ) );
+console.log( huh ); // [ [ "my", "favorite" ], [ "hamburger" ], [ "is", "a" ], [ "chicken", "sandwich" ] ]
+
+const better = scattered.flatMap( chunk => chunk.split( " " ) );
+console.log( better ); // [ "my", "favorite", "hamburger", "is", "a", "chicken", "sandwich" ]
+
+10、includes()方法用来判断一个数组是否包含一个指定的值，根据情况，如果包含则返回true，否则返回false，（includes经常用于字符串检测是否存在某个字符）。
+
+例子1：var pets = ['cat', 'dog', 'bat'];
+console.log(pets.includes('cat'));  // true
+
+例子2：var pets = ['cat', 'dog', 'bat'];
+console.log(pets.includes('cat',1)); // false
+includes()方法第二个参数是下标，表示从某个下标位置开始检索。
+
+11、indexof方法可以在字符串和数组上使用。indexOf() 方法可返回某个指定的值在数组中首次出现的位置。（注意：和findIndex()方法区别在于，indexOf()方法是判断数组中是否存在某个值，而findIndex()方法是找到数组中符合某个条件的第一个元素的下标值，因此indexOf()方法的参数是需要检索的值，而findIndex()方法的参数是一个回调函数，回调函数中有判断条件。indexOf()方法和includes()方法的类似之处是所传参数都是需要检索的元素，只是indexOf()方法会返回下标，而includes()方法则直接返回true或者false）。
+
+例子：
+arr = ['mfg', '2017', '2016'];
+            //控制台输出0，查找到下标
+            console.log(arr.indexOf('mfg'));
+            //控制台输出-1，因为此方法不会在每一个元素的基础上再次执行 indexOf 匹配
+            console.log(arr.indexOf('m'));
+            //控制台输出1，查找到下标
+            console.log(arr.indexOf('2017'));
+            //控制台输出-1，这里不会做隐式类型转换
+            console.log(arr.indexOf(2017));
+
+12、join(),join() 方法用于把数组中的所有元素转换一个字符串。元素是通过指定的分隔符进行分隔的(注意：使用join()方法会先将数组降为一维，然后在将数组中的每个元素按照指定分隔符链接成字符串，如果用原生方法实现的话，可以先对数组进行flat(Infinity)操作，然后循环添加分隔符。)。
+
+例子:var arr=["faf","fdad",["fdas","fdsab"],[[[3231,3131,312]]]];
+console.log(arr.join('.')); //faf.fdad.fdas.fdsab.3231.3131.312
+
+13、keys() 方法用于从数组创建一个包含数组键的可迭代对象(可迭代对象和当时java中看到的一样，对象调用next()方法就会拿到对象中下一个值)。
+例子：var fruits = ["Banana", "Orange", "Apple", "Mango"];
+console.log(fruits.keys()); // Array Iterator {}
+
+<p>从数组中创建一个可迭代的对象，该对象包含数组的键。</p>
+
+<p id="demo1"></p>
+<p id="demo2"></p>
+<p id="demo3"></p>
+<p><strong>注意:</strong> IE11 及其更早的浏览器版本不支持 keys 方法。</p>
+
+<script>
+var fruits = ["Banana", "Orange", "Apple", "Mango"];
+var x = fruits.keys();
+
+document.getElementById("demo1").innerHTML = x.next().value;
+document.getElementById("demo2").innerHTML = x.next().value;
+document.getElementById("demo3").innerHTML = x.next().value;
+</script>
+
+（注意：在顶级父对象Object中也有一个keys()方法，该方法传入参数为对象时，则会返回对象所有的key放入数组中，Object.keys(obj),该方法传入字符串时，返回字符串的索引，传入数组时，返回数组所有下标。）
+
+13、lastIndexOf() 方法可返回一个指定的值最后出现的位置，可以从数组的尾部向前检索。
+例子：
+arr = ['mfg', '2017', '2016'];
+            //控制台输出0，查找到下标
+            console.log(arr.lastIndexOf('mfg'));
+            //控制台输出-1，因为此方法不会在每一个元素的基础上再次执行 indexOf 匹配
+            console.log(arr.lastIndexOf('m'));
+            //控制台输出1，查找到下标
+            console.log(arr.lastIndexOf('2017'));
+            //控制台输出-1，这里不会做隐式类型转换
+            console.log(arr.lastIndexOf(2017));
+
+14、map()函数，map()函数可以返回一个新数组，不会改变原数组。
+
+15、pop() 方法用于移除数组的最后一项，并返回最后一个元素的值。
+16、push() 方法可向数组的末尾添加一个或多个元素，并返回新的长度。
+17、shift() 方法用于把数组的第一个元素从其中删除，并返回第一个元素的值。
+18、unshift() 方法可向数组的开头添加一个或更多元素，并返回新的长度。
+
+19、reverse() 方法用于颠倒数组中元素的顺序。该方法会改变原来的数组，而不会创建新的数组。
+var arr = new Array(3)
+arr[0] = "George"
+arr[1] = "John"
+arr[2] = "Thomas"
+
+document.write(arr.reverse())
+George,John,Thomas
+Thomas,John,George
+
+20、some() 方法用于检测数组中的元素是否满足指定条件（函数提供），如果有一个元素满足条件，则表达式返回true , 剩余的元素不会再执行检测。如果没有满足条件的元素，则返回false。该方法不会改变原数组。该方法和every()方法是对立的，every()方法是所有元素都满足条件时才会返回true，而some()方法是只要有一个元素满足时就返回true。
+some()方法的参数  Array.some(fun,thisValue)，第一个参数是回调函数，回调函数中有三个参数，分别为value、index、arr，thisValue参数可以改变fun回调函数中的this指向，当不传参数时，fun回调函数的this指向window，some方法的this指向调用some方法的数组，当传入时，fun回调函数的this将指向传入的对象。
+例子：var ages = [4, 12, 16, 20];
+ages.some((value,index,arr)=>{
+	return value > 18;
+}); // true  数组中第四个元素满足条件，所以返回true
+
+21、sort() 方法用于对数组的元素进行排序。对数组的引用。请注意，数组在原数组上进行排序，不生成副本。
+
+22、splice() 方法可删除从 index 处开始的零个或多个元素，并且用参数列表中声明的一个或多个值来替换那些被删除的元素。arr.splice(index,deleteNum,item1,...itemX)，参数index为必需，为删除和添加的起始位置，deleteNum为必需，是需要删除的元素个数，当不需要删除时设置成0，item1...itemX为可选，是需要插入的元素。该方法会改变原数组，返回的是被删除的元素数组，如果删除个数为0，则返回空数组。
+例子：var arr = [12,23,43,54,65];
+console.log(arr.splice(2,0,11,11));
+//[]     arr // [12, 23, 11, 11, 43, 54, 65]
+
+四十三、字符串的方法
+1、charAt() 方法可返回指定位置的字符。
+例子：var str = "HELLO WORLD";
+var n = str.charAt(2)  // L
+
+2、charCodeAt() 方法可返回指定位置的字符的 Unicode 编码。
+例子：var str = "HELLO WORLD";
+var n = str.charCodeAt(0);  // 72
+
+3、concat() 方法用于连接两个或多个字符串。数组也有concat方法，用于连接多个数组。
+例子：var str1 = "Hello ";
+var str2 = "world!";
+var n = str1.concat(str2); // Hello world!
+
+(注意：由于concat即可以连接数组，又可以连接字符串，因此当str.concat(arr)时，arr中的内容会被转化为字符串，然后跟str连接在一起，当arr.concat(str)时，str将被当做一个元素，被添加到新数组中。)
+例子：var str1 = "Hello";
+var arr1 = [233,43,53];
+var arr2 = ["fa","tete"];
+console.log(str1.concat(arr1,arr2)); //Hello233,43,53fa,tete
+
+4、fromCharCode() 可接受一个指定的 Unicode 值，然后返回一个字符串。该方法是 String 的静态方法，因此只能使用String调用该方法。
+例子：var n = String.fromCharCode(65); // A
+
+5、indexOf() 方法可返回某个指定的字符串值在字符串中首次出现的位置。数组也有此方法，用来返回指定元素在数组中的位置。
+例子：var str="Hello world, welcome to the universe.";
+var n=str.indexOf("welcome"); // 13
+
+6、includes() 方法用于判断字符串是否包含指定的子字符串。
+例子：var str = "Hello world, welcome to the Runoob。";
+var n = str.includes("world"); // true
+
+7、match() 方法可在字符串内检索指定的值，或找到一个或多个正则表达式的匹配。match() 方法将检索字符串 stringObject，以找到一个或多个与 regexp 匹配的文本。这个方法的行为在很大程度上有赖于 regexp 是否具有标志 g。如果 regexp 没有标志 g，那么 match() 方法就只能在 stringObject 中执行一次匹配。如果没有找到任何匹配的文本， match() 将返回 null。否则，它将返回一个数组，其中存放了与它找到的匹配文本有关的信息。该数组的第 0 个元素存放的是匹配文本，而其余的元素存放的是与正则表达式的子表达式匹配的文本。
+例子：var str = "前端是一门职业，前端不如后端";
+console.log(str.match(/(前)(端)/)) //当正则中存在分组时，返回的数组中也会匹配到分组项
+// ["前端", "前", "端", index: 0, input: "前端是一门职业，前端不如后端", groups: undefined]
+如果匹配到有结果，那么数组的第一项就是匹配到的符合条件的子串，如果正则中存在分组，那个数组下标1出将存在正则中的第一个分组，下标2处存放第二个分组，依次类推。返回的数组中还有两个属性，分别为index和input,index属性是找到符合条件的下标，input属性指向传入的字符串对象，groups不知道是什么。
+
+当正则中有g存在时，就会全局搜索字符串，找到所有符合条件的子串，存入数组中。
+例子：var str = "前端是一门职业，前端不如后端";
+console.log(str.match(/前端/g))  // ["前端","前端"] 
+
+8、repeat() 方法字符串复制指定次数。repeat()方法中传入需要复制的次数，该方法不会改变原字符串，会生成新字符串。
+例子： var str = "name";
+console.log(str.repeat(2)) // namename
+
+9、replace() 方法用于在字符串中用一些字符替换另一些字符，或替换一个与正则表达式匹配的子串。
+例子：var str="Mr Blue has a blue house and a blue car";
+var n=str.replace(/blue/gi, "red");
+//Mr red has a red house and a red car
+
+10、search() 方法用于检索字符串中指定的子字符串，或检索与正则表达式相匹配的子字符串。如果没有找到任何匹配的子串，则返回 -1，找到则返回下标。和match对比，search是返回找到对应子串的下标，而match则返回数组，且能返回匹配到的项，search的正则中使用g不生效，只能找到第一个匹配的子串，match则可以匹配到所有的子串。
+例子：var str="Visit Runoob!"; 
+var n=str.search("Runoob");  // 6
+
+11、slice()即可以处理数组，也可以处理字符串，不会改变原数组。
+
+12、split()方法用来打散字符串，按照指定的字符将字符串打散成数组。
+例子：var str="How are you doing today?";
+var n=str.split();  // 省略分隔符，则将生成一个只有一个元素的数组
+//[How are you doing today?]
+
+var str="How are you doing today?";
+var n=str.split(""); //当双引号做参数时，会将所有字符打散。
+//[H,o,w, ,a,r,e, ,y,o,u, ,d,o,i,n,g, ,t,o,d,a,y,?]
+
+13、substr() 方法可在字符串中抽取从 开始 下标开始的指定数目的字符。和substring和slice方法不同的是，substr方法第二个参数是需要截取的个数。
+例子：var str="Hello world!";
+var n=str.substr(2,3) // llo
+
+14、substring() 方法用于提取字符串中介于两个指定下标之间的字符。和slice()方法一样，但是substring方法只能处理字符串，slice方法还能处理数组。
+
+15、toLowerCase() 方法用于把字符串转换为小写。
+例子：var str="Runoob";
+document.write(str.toLowerCase());  // runoob
+
+16、toUpperCase()方法用于把字符串转化为大写。
+例子：var str="Runoob";
+document.write(str.toUpperCase());  // RUNOOB
+
+17、trim()去除字符串首尾空格。
+var str = " faf sda    ";
+console.log(str.trim()) // faf sda
+
+18、
+
+
+
+四十四、数组的拷贝方法。
+数组的拷贝有深拷贝和浅拷贝的说法。
+1、如果数组是一维数组，且数组中的每个元素都不是引用类型，则可以使用slice(),和concat()方法进行拷贝。
+例1、var arr=["fdsa","fadsf","fdagrr",3213];
+var arr1= arr.slice(0,arr.length-1);
+var arr2= arr.concat();
+此时对数组arr的拷贝为深拷贝。
+
+2、当数组不是一维数组或者数组的元素为引用类型时，使用slice和concat方法进行拷贝为浅拷贝
+如：var arr=["fdsa","fadsf",{"name":"lishibo"},3213];
+var arr1= arr.slice(0,arr.length-1);
+arr1[2].name="liuwenjing";
+Console.log(arr,arr1) // 都为["fdsa","fadsf",{"name":"liuwenjing"},3213]
+当数组元素为引用类型时，使用slice和concat拷贝数组就是浅拷贝，拷贝后的数组指向不同地址，但是数组中引用类型元素拷贝的是地址，所以改变arr1中的name属性值时，arr中属性值也会改变。
+
+3、当数组中元素存在引用类型时，可以使用JSON.stringify和JSON.parse来对数组拷贝（当数组中某个元素是函数时，则不能拷贝）。
+如：var arr=["fdsa","fadsf",{"name":"lishibo"},3213];
+var arr1 = JSON.parse(JSON.stringify(arr));
+
+4、当数组中存在函数时，则不能使用JSON.stringify和JSON.parse来拷贝，应该使用循环来拷贝。
+var obj = {
+    x: 1,
+    y: {
+        a: 1,
+        b: 0,
+        c: [1, 2, 3]
+    }
+};
+
+function getClass(o) { //判断数据类型
+    return Object.prototype.toString.call(o).slice(8, -1);
+}
+
+function deepCopy(obj) {
+    var result, oClass = getClass(obj);
+
+    if (oClass == "Object") result = {}; //判断传入的如果是对象，继续遍历
+    else if (oClass == "Array") result = []; //判断传入的如果是数组，继续遍历
+    else return obj; //如果是基本数据类型就直接返回
+
+    for (var i in obj) {
+        var copy = obj[i];
+
+        if (getClass(copy) == "Object") result[i] = deepCopy(copy); //递归方法 ，如果对象继续变量obj[i],下一级还是对象，就obj[i][i]
+        else if (getClass(copy) == "Array") result[i] = deepCopy(copy); //递归方法 ，如果对象继续数组obj[i],下一级还是数组，就obj[i][i]
+        else result[i] = copy; //基本数据类型则赋值给属性
+    }
+
+    return result;
+}
+
+var obj2 = deepCopy(obj);
+console.log(obj2);
+
+5、在es6之后，对象和数组的最简单拷贝方法可以使用...语法，如拷贝数组。
+var arr=["fdsa","fadsf",{"name":"lishibo"},3213];
+var arr1 = [...arr];
+
+四十五、对象的拷贝方法。
+1、json方法
+适合情况：
+ JSON对象的深度克隆。方法是先JSON.stringify() 转为json字符串， 再JSON.parse() 转为json数组
+缺点：
+  a. 如果你的对象里有函数, 函数无法被拷贝下来
+  b. 无法拷贝copyObj对象原型链上的属性和方法
+2、如上使用循环拷贝。
+3、如上使用...语法拷贝。

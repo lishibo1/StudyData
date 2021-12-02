@@ -1,0 +1,272 @@
+1、vue3.0为什么比vue2.0快
+	a、优化了diff算法：
+	在vue2.0中虚拟dom是进行全量对比的，在vue3中增加了静态标记，在进行对比时只对比有静态标记的节点。vue2全量对比指的是vue会先生成一个虚拟dom树，当有内容变化时，会重新生成一个虚拟dom树，在更新时会每一层跟上一个虚拟dom树进行对比 。而vue3中生成虚拟dom树之后会进行静态标记，当有内容变化时，会重新生成一个虚拟dom树，更新对比时只比较静态标记的节点，所以减少了对比的次数，会比之前diff算法更高效。
+
+	静态标记如下：
+<div>
+    <p>知播渔</p>
+    <p>知播渔</p>
+    <p>知播渔</p>
+    <p>{{msg}}}</p>
+</div>
+export function render(_ctx, _cache, $props, $setup, $data, $options) {
+  return (_openBlock(), _createBlock("div", null, [
+    _createVNode("p", null, "知播渔"),
+    _createVNode("p", null, "知播渔"),
+    _createVNode("p", null, "知播渔"),
+    _createVNode("p", null, _toDisplayString(_ctx.msg) + "}", 1 /* TEXT */)
+  ]))
+}
+
+静态标记值存储在一个枚举类中，值分别代表的意思如下：
+附录: PatchFlags
+export const enum PatchFlags {
+  TEXT = 1,// 动态文本节点
+  CLASS = 1 << 1, // 2  // 动态 class
+  STYLE = 1 << 2, // 4 // 动态 style
+  PROPS = 1 << 3, // 8 // 动态属性，但不包含类名和样式
+  FULL_PROPS = 1 << 4, // 16 // 具有动态 key 属性，当 key 改变时，需要进行完整的 diff 比较。
+  HYDRATE_EVENTS = 1 << 5, // 32 // 带有监听事件的节点
+  STABLE_FRAGMENT = 1 << 6, // 64 // 一个不会改变子节点顺序的 fragment
+  KEYED_FRAGMENT = 1 << 7, // 128 // 带有 key 属性的 fragment 或部分子字节有 key
+  UNKEYED_FRAGMENT = 1 << 8, // 256 // 子节点没有 key 的 fragment
+  NEED_PATCH = 1 << 9, // 512 // 一个节点只会进行非 props 比较
+  DYNAMIC_SLOTS = 1 << 10, // 1024 // 动态 slot
+  HOISTED = -1, // 静态节点
+  // 指示在 diff 过程应该要退出优化模式
+  BAIL = -2
+}
+
+
+
+	b、hoistStatic静态提升：
+	vue2中无论元素是否参与更新，每次都会重新创建，然后在渲染
+	vue3中对于不参与更新的元素，会做静态提升，只会被创建一次，在渲染时直接复用即可。
+
+
+<div>
+    <p>知播渔</p>
+    <p>知播渔</p>
+    <p>知播渔</p>
+    <p>{{msg}}}</p>
+</div>
+静态提升之前:每次都会调用createVNode函数去重新创建。
+export function render(_ctx, _cache, $props, $setup, $data, $options) {
+  return (_openBlock(), _createBlock("div", null, [
+    _createVNode("p", null, "知播渔"),
+    _createVNode("p", null, "知播渔"),
+    _createVNode("p", null, "知播渔"),
+    _createVNode("p", null, _toDisplayString(_ctx.msg) + "}", 1 /* TEXT */)
+  ]))
+}
+静态提升之后:
+const _hoisted_1 = /*#__PURE__*/_createVNode("p", null, "知播渔", -1 /* HOISTED */)
+const _hoisted_2 = /*#__PURE__*/_createVNode("p", null, "知播渔", -1 /* HOISTED */)
+const _hoisted_3 = /*#__PURE__*/_createVNode("p", null, "知播渔", -1 /* HOISTED */)
+
+export function render(_ctx, _cache, $props, $setup, $data, $options) {
+  return (_openBlock(), _createBlock("div", null, [
+    _hoisted_1,
+    _hoisted_2,
+    _hoisted_3,
+    _createVNode("p", null, _toDisplayString(_ctx.msg) + "}", 1 /* TEXT */)
+  ]))
+}
+
+	c、cacheHandlers 事件侦听器缓存
+      默认情况下onClick会被视为动态绑定（也就是会添加静态标记）, 所以每次都会去追踪它的变化
+      但是因为是同一个函数，所以没有追踪变化, 直接缓存起来复用即可
+
+	事件侦听缓存代码如下：
+事件监听缓存
+<div>
+  <button @click="onClick">按钮</button>
+</div>
+
+开启事件监听缓存之前: 有静态标记8
+export function render(_ctx, _cache, $props, $setup, $data, $options) {
+  return (_openBlock(), _createBlock("div", null, [
+    _createVNode("button", { onClick: _ctx.onClick }, "按钮", 8 /* PROPS */, ["onClick"])
+  ]))
+}
+开启事件监听缓存之后: 没有静态标记。
+export function render(_ctx, _cache, $props, $setup, $data, $options) {
+  return (_openBlock(), _createBlock("div", null, [
+    _createVNode("button", {
+      onClick: _cache[1] || (_cache[1] = (...args) => (_ctx.onClick(...args)))
+    }, "按钮")
+  ]))
+}
+
+
+2.什么是Vite?
+- Vite是Vue作者开发的一款意图取代webpack的工具
+- 其实现原理是利用ES6的import会发送请求去加载文件的特性,
+  拦截这些请求, 做一些预编译, 省去webpack冗长的打包时间
+
+
+3、组合API。
+vue2存在问题，当围绕某个数据发生一系列操作时，这个响应式数据被定义在data中，处理data数据的逻辑可能存在于methods、computed、watch中，那么此时一个数据的处理代码被分到了多个位置去编写，这样不便于后期的维护，为了解决这个问题，vue3提供了组合API，vue3中提供了setup函数，为组合API的入口函数，如下：
+
+<script>
+  import {ref} from 'vue';
+export default {
+  name: 'App',
+  // setup函数是组合API的入口函数
+  setup(){
+    // 定义了一个名称叫做count变量, 这个变量的初始值是0
+    // 这个变量发生改变之后, Vue会自动更新UI
+    let count = ref(0);
+    // 在组合API中, 如果想定义方法, 不用定义到methods中, 直接定义即可
+    function myFn() {
+      // alert(123);
+      // console.log(count.value);
+      count.value += 1;
+    }
+    // 注意点:
+    // 在组合API中定义的变量/方法, 要想在外界使用, 必须通过return {xxx, xxx}暴露出去
+    return{count, myFn}
+  }
+}
+</script>
+
+
+4、ref和reactive函数（shallowRef、shallowReactive、triggerRef）。
+vue3中提供了ref和reactive函数，这两个方法都是用来实现响应式数据的,使用之前都需要引入。
+import {ref,reactive} from 'vue';
+当数据为简单类型数据时，使用ref函数处理为响应式数据：
+let count = ref(0); //ref函数在底层调用了reactive函数，相当于执行了count = reactive({value:0})，因此在js中要改变count的值时不能直接给count赋值，而是给count.value赋值。但是当渲染在页面上时，并不是{{count.value}}，是因为使用ref创建的数据会有一个私有属性__isRef = true属性，当渲染数据到页面上时，vue会检查这个属性，当检查到有这个属性，且值为true时，vue会自动加.value。__isRef是私有属性，那开发者怎么判断数据是ref类型还是reactive类型了，vue提供了isRef()和isReactive()来判断。
+在页面中使用时<p>{{count}}</p>
+
+当数据为复杂类型数据时，使用reactive函数处理为响应式数据：
+let user = reactive({"name":"lishibo","age":26});
+在页面中使用时<p>{{user.name}}</p>
+
+注意：ref和reactive数据绑定都是递归监听，也就是将每一层数据都绑定成了Proxy对象，因此当数据深度较深时，性能会受到影响，vue提供了shallowRef和shallowReactive方法，这两个方法都只监听第一层数据，也就是只将第一层数据绑定成Proxy对象，只有第一层数据发生变化时，才会触发更新UI，但是shallowRef比较特别， 只有value值变化才会触发，因为value才是第一层，因此使用shallowRef绑定的数据需要重新给value赋值才会更新UI。vue还提供了triggerRef()方法，当ref数据发生变化需要主动更新UI时，可以调用triggerRef()将ref数据传入，就会主动更新UI，vue并没有提供triggerReactive方法。
+
+在组合API入口函数setup中定义的变量如果需要在页面中使用，都要return出去，当定义的变量被return后，相当于数据被加入data中，定义的方法被return后，相当于加入了methods中。如上：return {count,user};
+
+
+5、setup函数执行的时间和注意点。
+	a、setup执行时间在beforeCreate之前，因为执行beforeCreate时data、methods还没有生成，所以在setup中不能使用data、methods中的方法。
+	b、setup中无法使用this，因此此时对象还没有创建出来，所以 Vue 为了避免我们错误的使用，直接将 setup函数中的this修改成了 undefined。
+	c、setup函数只能是同步的不能是异步的，意思不是不能写异步代码，而是setup函数不能定义为异步函数，如在setup函数前加async
+
+
+6、toRaw函数
+let obj = {name:'lnj', age:18};
+let state = reactive(obj);
+let obj2 = toRaw(state);
+console.log(obj === state); // false
+console.log(obj === obj2); // true
+此时state和obj的关系:引用关系, state的本质是一个Proxy对象, 在这个Proxy对象中引用了obj，也就是说，当我们直接修改obj.name = 'lishibo'时，state.name也是等于'lishibo'，但是此时并不会触发UI界面更新，因为obj并没有被追踪。toRaw方法可以得到ref和reactive的原始数据。如果想通过toRaw拿到ref类型的原始数据(创建时传入的那个数据)，那么就必须明确的告诉toRaw方法, 要获取的是.value的值，因为经过Vue处理之后, .value中保存的才是当初创建时传入的那个原始数据。
+let obj = {name:'lnj', age:18};
+let state = ref(obj);
+let obj2 = toRaw(state.value);
+console.log(obj === obj2); // true
+      ref/reactive数据类型的特点:
+      每次修改都会被追踪, 都会更新UI界面, 但是这样其实是非常消耗性能的
+      所以如果我们有一些操作不需要追踪, 不需要更新UI界面, 那么这个时候,
+      我们就可以通过toRaw方法拿到它的原始数据, 对原始数据进行修改
+      这样就不会被追踪, 这样就不会更新UI界面, 这样性能就好了
+
+7、markRaw函数
+将数据标记为永远不能追踪的数据，一般在编写自己的第三方库时使用
+let obj = {name: 'lnj', age: 18};
+obj = markRaw(obj);
+let state = reactive(obj);
+此时state将不会被追踪，改变state.name = 'lishibo'并不会触发更新UI
+
+8、如何自定义一个ref数据？customRef()
+ setup() {
+    let age = myRef(18);
+    function myFn() {
+      age.value += 1;
+    }
+    return {age, myFn}
+  }
+//自定义函数myRef
+function myRef(value) {
+//返回一个vue中自定义ref，注意，传入的value只能是值类型的，当传入的是引用类型时，会发生错误。
+  return customRef((track, trigger)=>{
+    return {
+      get(){
+        track(); // 告诉Vue这个数据是需要追踪变化的
+        console.log('get', value);
+        return value;
+      },
+      set(newValue){
+        console.log('set', newValue);
+        value = newValue;
+        trigger(); // 告诉Vue触发界面更新
+      }
+    }
+  });
+}
+
+9、vue3中的ref拿页面中的元素。
+<div ref="box">我是div</div>
+和vue2不同，vue2中获取html中ref属性的标签可以this.$refs.box，但是在vue3中不存在$refs这个属性，vue3中获取元素的方法应该如下：
+
+setup() {
+    //此处box对应html中的box
+    let box = ref(null); // reactive({value: null})
+
+    onMounted(()=>{
+      console.log('onMounted',box.value);// <div ref="box">我是div</div>
+    });
+
+    console.log(box.value); // null 因为此时box还不存在，setup函数执行时页面并没有渲染。
+
+    return {box};
+  }
+
+10、readonly、shallowReadonly、isreadonly方法以及readonly和const的区别。
+使用readonly创建的数据不能改变，readonly创建的数据是递归的，每一层都不能变，shallowReadonly只有第一层的数据不能变，isReadonly是判断数据是否是readonly类型。
+// readonly:用于创建一个只读的数据, 并且是递归只读
+let state1 = readonly({name:'lnj', attr:{age:18, height: 1.88}});
+// shallowReadonly: 用于创建一个只读的数据, 但是不是递归只读的
+let state2 = shallowReadonly({name:'lnj', attr:{age:18, height: 1.88}});
+// const和readonly区别:
+const: 赋值保护, 不能给变量重新赋值，变量中属性值可以改变。
+readonly: 属性保护, 不能给属性重新赋值。
+
+
+11、vue3.0响应式数据的本质。
+vue3.0响应式数据和vue2.0不同，vue2.0实现响应式数据采用的Object.defineProperty，vue3.0使用的是Proxy包装对象实现对对象的监听。
+
+let obj = {name:'lnj', age:18, family: {
+	father: {name:'lnjf',age:48},
+	girlfrient: {name:'lwj', age: 18}
+}};
+let state = new Proxy(obj, {
+    get(obj, key){
+        console.log(obj, key);
+        return obj[key];
+    },
+    set(obj, key, value){
+        console.log(obj, key, value);
+        obj[key] = value;
+        console.log('更新UI界面');
+	return true  //必须有return true，没有此处代码时，当用户修改值时，系统并不知道已经修改完毕，所以有可能报错，此处都应该加上return语句。
+    }
+});
+
+Proxy()接收两个参数，一个是要监听的对象，另一个参数是一个对象{}，对象中有get、set方法，当获取包装对象的值时会触发get方法，当修改包装对象的值时会触发set方法，分析如上代码：
+state.name = 'lishibo'会触发set方法，
+console.log(obj, key, value); // obj 'name' 'lishibo'
+state.family.girlfrient.name = 'kesaili'
+此时并不会触发set方法，使用Proxy包装对象时，只监听第一层属性的变化，但是state的值将会被改变，obj也会改变，因为Proxy包装的对象中存储了obj的地址，当访问Proxy包装对象的属性时，其实就是访问obj的属性。
+
+
+
+
+
+
+
+
+
+
+
+
+	
